@@ -37,6 +37,10 @@ mod handle_connection;
 //
 mod provisioning;
 //
+use esp_idf_svc::handle::RawHandle;
+use esp_idf_svc::sys::{ESP_OK, esp_err_t, esp_netif_set_hostname};
+use std::ffi::CString;
+//
 use crate::swindle_state_trait::SwindleStateTrait;
 use executer::SwindleExecutor;
 use fsm::SwindleEvents;
@@ -89,6 +93,15 @@ fn main() -> anyhow::Result<()> {
     let static_queue: &'static Mutex<BiQueue> = Box::leak(Box::new(Mutex::new(biqueue)));
 
     let internal_wifi = EspWifi::new(peripherals.modem, sys_loop.clone(), Some(nvs))?;
+
+    let netif_handle = internal_wifi.sta_netif().handle();
+    let hostname = CString::new("swindle_esp32").unwrap();
+    unsafe {
+        let err: esp_err_t = esp_netif_set_hostname(netif_handle, hostname.as_ptr());
+        if err != ESP_OK {
+            panic!("Failed to set hostname: {}", err);
+        }
+    }
     let wifi_static = Box::leak(Box::new(internal_wifi));
     let executor = SwindleExecutor::new(wifi_static, sys_loop.clone(), static_queue);
     let static_executor: &'static SwindleExecutor = Box::leak(Box::new(executor));
