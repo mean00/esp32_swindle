@@ -1,0 +1,50 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": " S3",
+      "type": "gdb",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "target": "${workspaceRoot}/target/xtensa-esp32s3-espidf/debug/swindle_s3", 
+      "gdbpath": "${config:espxtensaToolchainPath}/xtensa-esp32-elf-gdb",
+      //"gdbpath": "${config:myRiscvToolchainPath}/riscv-none-elf-gdb",
+      "autorun": [
+        "target extended-remote |  ${config:riscv_openocd_path}/openocd -c \"gdb port pipe; log_output openocd.log\"  -f board/esp32s3-builtin.cfg",
+        //  "target extended-remote localhost:3333",
+        "set confirm off",
+        "set mem inaccessible-by-default off",
+        "symbol-file target/xtensa-esp32s3-espidf/debug/swindle_s3", 
+        //"set substitute-path /home/fx/Arduino_esp32/rust/c6_empty_std/src/ /home/fx/Arduino_esp32/rust/c6_empty_std/app/src", 
+        
+        "mon reset halt ",
+        "flushregs",
+        "thb app_main"
+      ],
+      "preRestartCommands": ["mon reset halt"]
+    },
+     {
+      "name": " C3",
+      "type": "gdb",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "target": "${workspaceRoot}/target/riscv32imc-esp-espidf/debug/swindle_s3", 
+      "gdbpath": "${config:espRiscvToolchainPath}/riscv32-esp-elf-gdb",
+     // "gdbpath": "${config:espxtensaToolchainPath}/xtensa-esp32-elf-gdb",
+      //"gdbpath": "${config:myRiscvToolchainPath}/riscv-none-elf-gdb",
+      "autorun": [
+        "target extended-remote |  ${config:riscv_openocd_path}/openocd -c \"gdb port pipe; log_output openocd.log\"  -f board/esp32c3-builtin.cfg",
+        //  "target extended-remote localhost:3333",
+        "set confirm off",
+        "set mem inaccessible-by-default off",
+        "symbol-file target/riscv32imc-esp-espidf/debug/swindle_s3", 
+        //"set substitute-path /home/fx/Arduino_esp32/rust/c6_empty_std/src/ /home/fx/Arduino_esp32/rust/c6_empty_std/app/src", 
+        
+        "mon reset halt ",
+        "flushregs",
+        "thb app_main"
+      ],
+      "preRestartCommands": ["mon reset halt"]
+    }
+  ]
+}

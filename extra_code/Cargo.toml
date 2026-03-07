@@ -1,0 +1,30 @@
+[package]
+name = "extra_code"
+version = "0.1.0"
+authors = ["mean <fixounet@free.fr>"]
+edition = "2024"
+#rust-version = "1.77"
+
+[profile.release]
+opt-level = "s"
+
+[profile.dev]
+debug = true    # Symbols are nice, and they don't increase the size on Flash
+opt-level = "z"
+
+[features]
+default = []
+
+[lib]
+name = "extra_code" 
+path = "src/lib.rs"
+
+#experimental = ["esp-idf-svc/experimental"]
+
+[dependencies]
+esp-idf-sys = {workspace = true }
+
+[build-dependencies]
+cmake = "0.1"
+
+

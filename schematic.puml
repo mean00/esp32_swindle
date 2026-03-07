@@ -1,0 +1,28 @@
+@startuml
+participant main
+queue       queue       
+participant fsm
+queue       exec_queue
+control     executor
+queue       gdb_queue
+control     gdb_slave     
+main -> queue : new()
+main -> fsm : new() 
+main -> executor : new() 
+executor -> gdb_slave : new()
+queue -> fsm : State Event
+fsm -> queue : outbound
+fsm-> exec_queue : exec command
+exec_queue -> executor : start_dhcp (async)
+exec_queue -> executor : stop (async)
+exec_queue -> executor : provision (async)
+exec_queue -> executor : start_server (async)
+exec_queue -> executor : kill_gdb (async)
+
+executor -> queue : Wifi State change
+executor -> executor : new connection
+executor -> gdb_queue : Handle connection
+gdb_queue -> gdb_slave : process_connection(Tcp)
+gdb_slave -> queue : Gdb disconnect
+@enduml
+

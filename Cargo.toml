@@ -1,47 +1,23 @@
-[package]
-name = "s3_empty_std"
-version = "0.1.0"
-authors = ["mean <fixounet@free.fr>"]
-edition = "2021"
+[workspace]
+members=["idf-sys","native_code","extra_code","app"]
 resolver = "2"
-rust-version = "1.77"
 
-[[bin]]
-name = "s3_empty_std"
-harness = false # do not use the built-in cargo test harness -> resolve rust-analyzer errors
-
-[profile.release]
-opt-level = "s"
+[workspace.dependencies]
+esp-idf-sys = { version = "0.36.1", features = ["binstart", "std"] }
+esp-idf-svc = { version = "0.51.0" }
+esp-idf-hal = { version = "0.45.2" }
+rust_esprit = { path = "modules/esprit/rust/rust_esprit"}
+rsbmp ={path = "modules/swindle/swindle/rs/rs_swindle", features = ["std","esp32","native"]}
+ufmt = { version = "0.2.0", default-features = false }
+heapless = { version = "0.7.17", features = ["ufmt-impl"] }
 
 [profile.dev]
-debug = true    # Symbols are nice, and they don't increase the size on Flash
-opt-level = "z"
+panic = "abort"
+lto = "fat"
+opt-level = 2
+debug = 2
 
-[features]
-default = []
+[profile.release]
+panic = "abort"
+lto = "fat"
 
-experimental = ["esp-idf-svc/experimental"]
-
-[dependencies]
-log = "0.4"
-esp-idf-svc = "0.51"
-esp-idf-sys = { version = "0.36", features = ["binstart"] }
-# --- Optional Embassy Integration ---
-# esp-idf-svc = { version = "0.51", features = ["critical-section", "embassy-time-driver", "embassy-sync"] }
-
-# If you enable embassy-time-driver, you MUST also add one of:
-
-# a) Standalone Embassy libs ( embassy-time, embassy-sync etc.) with a foreign async runtime:
-# embassy-time = { version = "0.4.0", features = ["generic-queue-8"] } # NOTE: any generic-queue variant will work
-
-# b) With embassy-executor:
-# embassy-executor = { version = "0.7", features = ["executor-thread", "arch-std"] }
-
-# NOTE: if you use embassy-time with embassy-executor you don't need the generic-queue-8 feature
-
-# --- Temporary workaround for embassy-executor < 0.8 ---
-# esp-idf-svc = { version = "0.51", features = ["embassy-time-driver", "embassy-sync"] }
-# critical-section = { version = "1.1", features = ["std"], default-features = false }
-
-[build-dependencies]
-embuild = "0.33"

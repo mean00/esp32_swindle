@@ -1,0 +1,46 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Cargo Build (ESP32-C6)",
+            "type": "shell",
+            "command": "cargo build",
+            "args": [], 
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$rustc"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+      {
+            "label": "Cargo Clippy (ESP32-C6)",
+            "type": "shell",
+            "command": "~/.cargo/bin/cargo",
+            "args": ["clippy","--", "-D", "warnings"],
+            "group": "none",
+            "problemMatcher": ["$rustc"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "Cargo Flash (ESP32-C6)",
+            "type": "shell",
+            "command": "espflash flash --monitor",
+            "dependsOn": ["Cargo Build (ESP32-C6)"],
+            "group": "none",
+            "problemMatcher": ["$rustc"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        }
+    ]
+}
