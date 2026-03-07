@@ -31,7 +31,16 @@ pub fn set_wifi_tx_power() {
         let mut power: i8 = 0;
         esp_wifi_get_max_tx_power(&mut power);
         println!("raw tx power {}", power);
-        esp_wifi_set_max_tx_power(40); // 34 is 8.5 dbm
+        // 20 + 5 db
+        // 30 + 8 db
+        // 52 + 16 db
+        // 80 + 20 db
+        // --------------
+        // 60 ->
+        // 50 -> no
+        // 40 -> no
+        // 30 -> no
+        esp_wifi_set_max_tx_power(45); // 34 is 8.5 dbm
         esp_wifi_get_max_tx_power(&mut power);
         println!("new tx power {}", power);
     }
