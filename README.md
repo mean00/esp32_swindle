@@ -32,8 +32,17 @@ There is a helper script to build all the components in the right order : build_
 
 The build targets idf 5.4
 
+## Flashing
+
+- Download the .gz binary
+- Gunzip it if not done automatically
+- espflash flash -M swindle_s3
+
 ## Using
 
 target extended-remote 192.168.0.149:8080
+
 mon swdp_scan
+
 mon attach 1
+
