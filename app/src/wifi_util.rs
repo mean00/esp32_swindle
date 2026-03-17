@@ -40,7 +40,7 @@ pub fn set_wifi_tx_power() {
         // 50 -> no
         // 40 -> no
         // 30 -> no
-        esp_wifi_set_max_tx_power(45); // 34 is 8.5 dbm
+        esp_wifi_set_max_tx_power(50); // 34 is 8.5 dbm
         esp_wifi_get_max_tx_power(&mut power);
         println!("new tx power {}", power);
     }

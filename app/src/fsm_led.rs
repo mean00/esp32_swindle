@@ -1,5 +1,5 @@
 unsafe extern "C" {
-    unsafe fn ws2812_init(pin: u8);
+    unsafe fn ws2812_init();
     unsafe fn ws2812_set_color(color: u32);
 }
 
@@ -9,9 +9,9 @@ fn dim(x: u32) -> u32 {
 /*
  *
  */
-pub fn init(pin: u8) {
+pub fn init() {
     unsafe {
-        ws2812_init(pin);
+        ws2812_init();
     }
 }
 /*

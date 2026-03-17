@@ -110,6 +110,12 @@ fn main() {
     let ranlib = get_tool_path(triplet, "-ranlib");
     let cc = get_tool_path(triplet, "-gcc");
     let cxx = get_tool_path(triplet, "-g++");
+    //let ln_esp_board = "mini";
+    let board = env::var("ln_board").unwrap_or("default".to_string());
+    let mut ln_esp_board = match board.as_str() {
+        "mini" => "mini",
+        _ => "wroom",
+    };
 
     println!("cargo:warning=Collecting paths ");
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
@@ -123,6 +129,7 @@ fn main() {
         .define("CMAKE_C_COMPILER_WORKS", "ON")
         .define("CMAKE_CXX_COMPILER_WORKS", "ON")
         .define("LN_ESP_MCU", &ln_esp_mcu)
+        .define("LN_ESP_BOARD", &ln_esp_board)
         .define("CMAKE_INSTALL_PREFIX", &install_path)
         .cflag(format!("-I{}", config.display()))
         .cxxflag(format!("-I{}", config.display()))

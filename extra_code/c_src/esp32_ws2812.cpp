@@ -12,12 +12,14 @@ static const char *TAG = "WS2812";
 
 static rmt_channel_handle_t s_chan = nullptr;
 static rmt_encoder_handle_t s_encoder = nullptr;
-
+extern uint8_t ln_get_ws2812_pin();
 /*
  *
  */
-extern "C" void ws2812_init(uint8_t pinno)
+extern "C" void ws2812_init()
 {
+    uint8_t pinno = ln_get_ws2812_pin();
+
     if (s_chan != nullptr)
     {
         ESP_LOGW(TAG, "Already initialized");

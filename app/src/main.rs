@@ -81,7 +81,7 @@ fn main() -> anyhow::Result<()> {
 
     swindle_sys_init();
     // Blink the LED to say we are starting
-    fsm_led::init(settings::WS2812_PIN);
+    fsm_led::init();
     for _i in 0..2 {
         fsm_led::set_color(settings::WS2812_PROVISIONING);
         std::thread::sleep(std::time::Duration::from_millis(50));
