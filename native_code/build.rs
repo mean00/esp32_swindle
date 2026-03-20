@@ -112,7 +112,7 @@ fn main() {
     let cxx = get_tool_path(triplet, "-g++");
     //let ln_esp_board = "mini";
     let board = env::var("ln_board").unwrap_or("default".to_string());
-    let mut ln_esp_board = match board.as_str() {
+    let ln_esp_board = match board.as_str() {
         "mini" => "mini",
         _ => "wroom",
     };
