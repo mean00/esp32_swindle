@@ -5,7 +5,7 @@ This is a quick port of the swindle SWD debugger on the ESP32S3/Wifi.
 ## Pinout
 
 ### S3 Mini
-![screenshot](assets/web/s3mini.jpg?raw=true "front")
+![screenshot](assets/web/s3mini.png?raw=true "front")
 - GPIO21 : Pin to WS2812
 - GPIO1: Ground to reset provisioning
 - GPIO7: SWDIO
