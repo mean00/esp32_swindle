@@ -1,6 +1,3 @@
-[submodule "modules/esprit"]
-	path = modules/esprit
-	url = git@github.com:mean00/esprit.git
 [submodule "modules/swindle"]
 	path = modules/swindle
 	url = https://github.com/mean00/swindle.git

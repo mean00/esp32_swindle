@@ -6,7 +6,7 @@ resolver = "2"
 esp-idf-sys = { version = "0.36.1", features = ["binstart", "std"] }
 esp-idf-svc = { version = "0.51.0" }
 esp-idf-hal = { version = "0.45.2" }
-rust_esprit = { path = "modules/esprit/rust/rust_esprit"}
+rust_esprit = { path = "modules/swindle/esprit/rust/rust_esprit"}
 rsbmp ={path = "modules/swindle/swindle/rs/rs_swindle", features = ["std","esp32","native"]}
 ufmt = { version = "0.2.0", default-features = false }
 heapless = { version = "0.7.17", features = ["ufmt-impl"] }

@@ -26,7 +26,7 @@ set(swindle_root ${CMAKE_CURRENT_LIST_DIR}/../swindle)
 set(BMP ${swindle_root}/blackmagic)
 add_definitions("-DLN_ARCH=1") # riscv
 add_definitions("-DportTICK_RATE_MS=portTICK_PERIOD_MS")
-set(ESPRIT_WRAPPER  ${CMAKE_CURRENT_LIST_DIR}/../esprit/)
+set(ESPRIT_WRAPPER  ${CMAKE_CURRENT_LIST_DIR}/../swindle/esprit/)
 set(ESPRIT_ROOT  ${ESPRIT_WRAPPER})
 message(STATUS "Esprit root is  ${ESPRIT_ROOT}")
 message(STATUS "Freertos ipaths are $ENV{IDF_PATH}/components/freertos/FreeRTOS-Kernel/include:$ENV{IDF_PATH}/components/freertos/esp_additions/include/freertos")
