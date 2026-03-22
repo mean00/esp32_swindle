@@ -35,6 +35,7 @@ fn main() {
     println!("cargo:rustc-link-arg=-lesp_pm");
     println!("cargo:rustc-link-arg=-lbt");
     println!("cargo:rustc-link-arg=-lprotocomm");
+    println!("cargo:rustc-link-arg=-lesp_adc");
     println!("cargo:rustc-link-arg=-lhal");
     println!("cargo:rustc-link-arg=-lsoc");
     //println!("cargo:rustc-link-arg=-Wl,--no-whole-archive");
@@ -43,6 +44,7 @@ fn main() {
     println!("cargo:rustc-link-arg=-Lesp-idf/esp_pm");
     println!("cargo:rustc-link-arg=-Lesp-idf/hal");
     println!("cargo:rustc-link-arg=-Lesp-idf/soc");
+    println!("cargo:rustc-link-arg=-Lesp-idf/esp_adc");
     println!("cargo:rustc-link-arg=-Lesp-idf/bt");
     println!("cargo:rustc-link-arg=-Lesp-idf/protocomm");
     //

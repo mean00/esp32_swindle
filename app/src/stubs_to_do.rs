@@ -4,11 +4,6 @@ use core::ffi::{c_int, c_void};
 //
 
 #[unsafe(no_mangle)]
-pub extern "C" fn bmp_get_target_voltage_c() -> f32 {
-    0.0
-}
-
-#[unsafe(no_mangle)]
 pub extern "C" fn usbCdc_Logger(_n: i32, _data: *const u8) {}
 
 #[unsafe(no_mangle)]
@@ -23,8 +18,6 @@ unsafe extern "C" {
 pub unsafe extern "C" fn __wrap_longjmp(env: *mut c_void, val: c_int) -> ! {
     unsafe { __real_longjmp(env, val) }
 }
-#[unsafe(no_mangle)]
-pub extern "C" fn _Z17gmp_gpio_init_adcv() {}
 
 #[unsafe(no_mangle)]
 pub extern "C" fn gdb_if_init() {}
