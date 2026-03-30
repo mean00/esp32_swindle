@@ -2,6 +2,9 @@
 
 This is a quick port of the swindle SWD debugger on the ESP32S3/Wifi.
 
+The picture below shows an tiny ESP32S3 debugging a STM32 over Wifi. 
+(the usb is just there to power up the Esp32S3)
+
 ## Pinout
 
 ### S3 Mini
