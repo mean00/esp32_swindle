@@ -37,7 +37,8 @@ ESP_IDF_VERSION = "v6.0.2"
 # cannot identify a root crate on its own — ESP_IDF_SYS_ROOT_CRATE tells
 # esp-idf-sys whose manifest to read (app carries the extra-components config).
 ESP_IDF_SYS_ROOT_CRATE = "app"
-
+ESP_IDF_SYS_C_COMPILER_LAUNCHER = "sccache"
+RUSTC_WRAPPER = "sccache"
 # __________________________
 # This is used by esp32c3
 # __________________________

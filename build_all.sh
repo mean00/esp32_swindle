@@ -23,7 +23,7 @@ if command -v sccache >/dev/null 2>&1; then
 else
   echo "sccache not found - building without caching"
 fi
-rm -Rf target .embuild
+# rm -Rf target .embuild
 # Build all packages in ONE cargo invocation (same rationale as build_mini.sh):
 # separate `-p` invocations give the esp-idf-sys build script a different
 # per-invocation context (config/env), so cargo re-runs it per package, creating

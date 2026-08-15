@@ -13,9 +13,12 @@ heapless = { version = "0.7.17", features = ["ufmt-impl"] }
 
 [profile.dev]
 panic = "abort"
-lto = "fat"
-opt-level = 2
+lto = "thin"
+opt-level = 1
 debug = 2
+
+[profile.dev.package."*"]
+opt-level = "s"
 
 [profile.release]
 panic = "abort"
