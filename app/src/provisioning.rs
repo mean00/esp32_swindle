@@ -10,23 +10,23 @@ use std::sync::Mutex;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(i32)]
 enum ProvEvent {
-    Init = idf::wifi_prov_cb_event_t_WIFI_PROV_INIT as c_int,
-    Start = idf::wifi_prov_cb_event_t_WIFI_PROV_START as c_int,
-    CredRecv = idf::wifi_prov_cb_event_t_WIFI_PROV_CRED_RECV as c_int,
-    CredFail = idf::wifi_prov_cb_event_t_WIFI_PROV_CRED_FAIL as c_int,
-    ProvSuccess = idf::wifi_prov_cb_event_t_WIFI_PROV_CRED_SUCCESS as c_int,
-    ProvEnd = idf::wifi_prov_cb_event_t_WIFI_PROV_END as c_int,
+    Init = idf::network_prov_cb_event_t_NETWORK_PROV_INIT as c_int,
+    Start = idf::network_prov_cb_event_t_NETWORK_PROV_START as c_int,
+    CredRecv = idf::network_prov_cb_event_t_NETWORK_PROV_WIFI_CRED_RECV as c_int,
+    CredFail = idf::network_prov_cb_event_t_NETWORK_PROV_WIFI_CRED_FAIL as c_int,
+    ProvSuccess = idf::network_prov_cb_event_t_NETWORK_PROV_WIFI_CRED_SUCCESS as c_int,
+    ProvEnd = idf::network_prov_cb_event_t_NETWORK_PROV_END as c_int,
 }
 
 impl ProvEvent {
-    pub fn from_raw(raw: idf::wifi_prov_cb_event_t) -> Option<Self> {
+    pub fn from_raw(raw: idf::network_prov_cb_event_t) -> Option<Self> {
         Some(match raw {
-            idf::wifi_prov_cb_event_t_WIFI_PROV_INIT => Self::Init,
-            idf::wifi_prov_cb_event_t_WIFI_PROV_START => Self::Start,
-            idf::wifi_prov_cb_event_t_WIFI_PROV_CRED_RECV => Self::CredRecv,
-            idf::wifi_prov_cb_event_t_WIFI_PROV_CRED_FAIL => Self::CredFail,
-            idf::wifi_prov_cb_event_t_WIFI_PROV_CRED_SUCCESS => Self::ProvSuccess,
-            idf::wifi_prov_cb_event_t_WIFI_PROV_END => Self::ProvEnd,
+            idf::network_prov_cb_event_t_NETWORK_PROV_INIT => Self::Init,
+            idf::network_prov_cb_event_t_NETWORK_PROV_START => Self::Start,
+            idf::network_prov_cb_event_t_NETWORK_PROV_WIFI_CRED_RECV => Self::CredRecv,
+            idf::network_prov_cb_event_t_NETWORK_PROV_WIFI_CRED_FAIL => Self::CredFail,
+            idf::network_prov_cb_event_t_NETWORK_PROV_WIFI_CRED_SUCCESS => Self::ProvSuccess,
+            idf::network_prov_cb_event_t_NETWORK_PROV_END => Self::ProvEnd,
             // … add more
             _ => return None,
         })
@@ -59,7 +59,7 @@ fn print_nvm_config() {
  */
 unsafe extern "C" fn ev_callback(
     _user_data: *mut std::ffi::c_void,
-    event: idf::wifi_prov_cb_event_t,
+    event: idf::network_prov_cb_event_t,
     _event_data: *mut std::ffi::c_void,
 ) {
     println!(" RECEIVED Raw EVENT : {}", event);
@@ -123,7 +123,7 @@ pub fn is_provisioned() -> bool {
     print_nvm_config();
     let mut provisioned = false;
     unsafe {
-        idf::wifi_prov_mgr_is_provisioned(&mut provisioned);
+        idf::network_prov_mgr_is_wifi_provisioned(&mut provisioned);
     }
     println!("Device provisioned ? <{provisioned}>");
     provisioned
@@ -131,19 +131,22 @@ pub fn is_provisioned() -> bool {
 //
 pub fn init() {
     unsafe {
-        // 2. Provisioning manager config (EXACT 3 fields your bindings expect)
-        let prov_cfg = idf::wifi_prov_mgr_config_t {
-            scheme: idf::wifi_prov_scheme_ble,
-            scheme_event_handler: idf::wifi_prov_event_handler_t {
+        // 2. Provisioning manager config
+        let prov_cfg = idf::network_prov_mgr_config_t {
+            scheme: idf::network_prov_scheme_ble,
+            scheme_event_handler: idf::network_prov_event_handler_t {
                 event_cb: None,
                 user_data: ptr::null_mut(),
             },
-            app_event_handler: idf::wifi_prov_event_handler_t {
+            app_event_handler: idf::network_prov_event_handler_t {
                 event_cb: Some(ev_callback),
                 user_data: ptr::null_mut(),
             },
+            network_prov_wifi_conn_cfg: idf::network_prov_wifi_conn_cfg_t {
+                wifi_conn_attempts: 0,
+            },
         };
-        idf::wifi_prov_mgr_init(prov_cfg);
+        idf::network_prov_mgr_init(prov_cfg);
     }
 }
 //
@@ -163,8 +166,8 @@ pub fn provision(_event_queue: &'static Mutex<BiQueue>) {
     let pop = c"abcd1234";
     let service_name = c"SWINDLE_ESP32";
     unsafe {
-        idf::wifi_prov_mgr_start_provisioning(
-            idf::wifi_prov_security_WIFI_PROV_SECURITY_1,
+        idf::network_prov_mgr_start_provisioning(
+            idf::network_prov_security_NETWORK_PROV_SECURITY_1,
             pop.as_ptr() as *const core::ffi::c_void, // POP pointer
             service_name.as_ptr(),
             ptr::null(), // service_key = NULL for BLE

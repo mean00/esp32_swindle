@@ -19,6 +19,24 @@ CONFIG_BTDM_CTRL_ENABLED=n
 # Enable PSRAM
 #CONFIG_ESP_SYSTEM_SINGLE_CORE_MODE=y
 
-CONFIG_WIFI_PROV_ENABLE=y
-CONFIG_WIFI_PROV_BLE_FORCE_ENCRYPTION=y
-CONFIG_WIFI_PROV_SCHEME_SOFTAP=n   # disable SoftAP if you only use BLE
+CONFIG_ESP_PROTOCOMM_SUPPORT_SECURITY_VERSION_1=y
+CONFIG_NETWORK_PROV_BLE_FORCE_ENCRYPTION=y
+CONFIG_NETWORK_PROV_BLE_SEC_CONN=y
+
+# Use picolibc (the IDF 6.0 default) instead of newlib. The esprit C/C++ is
+# compiled against the matching libc headers: native_code/extra_code build.rs
+# detect CONFIG_LIBC_PICOLIBC in sdkconfig.h and inject the toolchain's
+# picolibc.specs, so the esp_libc platform_include wrappers resolve against
+# picolibc exactly as they do for IDF's own components.
+CONFIG_LIBC_PICOLIBC=y
+# swindle/esprit requires FreeRTOS trace facility (configUSE_TRACE_FACILITY=1)
+CONFIG_FREERTOS_USE_TRACE_FACILITY=y
+
+# Fix ESP32-C3 internal flash bootloop & flash size
+CONFIG_ESPTOOLPY_FLASHMODE_DIO=y
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+
+# Fix multiple DROM segments bootloop (remove .eh_frame on ESP-IDF v6)
+CONFIG_COMPILER_CXX_EXCEPTIONS=n
+CONFIG_COMPILER_CXX_EXCEPTIONS_EMG_POOL_SIZE=0
+CONFIG_ESP_SYSTEM_USE_EH_FRAME=n

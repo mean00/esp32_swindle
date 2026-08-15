@@ -36,6 +36,9 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR})
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories( ${CMAKE_CURRENT_LIST_DIR}/)
 include_directories( ${ESPRIT_WRAPPER}/include)
+# The esprit C++ is compiled against the IDF's default FreeRTOS kernel
+# (the esp-idf-sys build does not enable CONFIG_FREERTOS_SMP), so the vanilla
+# FreeRTOS-Kernel headers are used for every ESP32 target.
 include_directories("$ENV{IDF_PATH}/components/freertos/FreeRTOS-Kernel/include"
 "$ENV{IDF_PATH}/components/freertos/esp_additions/include/freertos"
 )

@@ -3,11 +3,11 @@ members=["idf-sys","native_code","extra_code","app"]
 resolver = "2"
 
 [workspace.dependencies]
-esp-idf-sys = { version = "0.36.1", features = ["binstart", "std"] }
-esp-idf-svc = { version = "0.51.0" }
-esp-idf-hal = { version = "0.45.2" }
+esp-idf-sys = { version = "0.37.2", features = ["binstart", "std"] }
+esp-idf-svc = { version = "0.52.1" }
+esp-idf-hal = { version = "0.46.2" }
 rust_esprit = { path = "modules/swindle/esprit/rust/rust_esprit"}
-rsbmp ={path = "modules/swindle/swindle/rs/rs_swindle", features = ["std","esp32","native"]}
+rsbmp ={path = "modules/swindle/swindle/rs/rs_swindle", features = ["std","esp32","native","network"]}
 ufmt = { version = "0.2.0", default-features = false }
 heapless = { version = "0.7.17", features = ["ufmt-impl"] }
 
@@ -20,4 +20,24 @@ debug = 2
 [profile.release]
 panic = "abort"
 lto = "fat"
+
+# Use esp-idf-sys from the local vendor/ copy: the crates.io release (0.37.2)
+# predates ESP-IDF v6.0 support (merged Mar 2026, e.g. esp-idf-sys#408) and fails
+# against IDF 6.0 (its bindings.h includes mbedtls/aes.h which no longer exists
+# in IDF 6.0, and its embuild usage trips over the new win-arm64 tool entry).
+# vendor/esp-idf-sys is the master-branch source WITH two local patches baked in
+# (see vendor/esp-idf-sys/README.swindle.md): bindings.h additionally includes
+# the network_provisioning headers so the `network_prov_*` bindings are
+# generated, and build/build.rs wraps the component link args in a
+# -Wl,--start-group/--end-group (IDF 6.0 split the hal libs, breaking static
+# link order). A local path copy is used (instead of a git dependency) so that
+# these patches can never be silently lost by a git checkout refresh.
+#
+# hal/svc similarly need the IDF 6.0 support from master; they are pinned to the
+# exact commits this project was validated against so a `cargo update` cannot
+# drift them.
+[patch.crates-io]
+esp-idf-sys = { path = "vendor/esp-idf-sys" }
+esp-idf-hal = { git = "https://github.com/esp-rs/esp-idf-hal", rev = "c2dac82f5243b0b7036c392f8218e6a2b4f7e375" }
+esp-idf-svc = { git = "https://github.com/esp-rs/esp-idf-svc", rev = "f59ffada5638cf582fe8cab1771fa38873ef6d73" }
 

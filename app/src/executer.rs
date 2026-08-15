@@ -104,13 +104,13 @@ impl SwindleExecutor {
         // if its a dual core, pin it to core 1 so that it does not jump
         // from one core to the other . Fast GPIO would fail (ESP32S3)
         #[cfg(esp32s3)]
-        let core = Core::Core1;
-        #[cfg(esp32c6)]
-        let core = Core::Core0;
+        let core = Some(Core::Core1);
+        #[cfg(any(esp32c3, esp32c6))]
+        let core = None;
 
         ThreadSpawnConfiguration::set(&ThreadSpawnConfiguration {
-            name: Some(c"gdb".to_bytes_with_nul()),
-            pin_to_core: Some(core),
+            name: Some(c"gdb"),
+            pin_to_core: core,
             ..Default::default()
         })
         .unwrap();
@@ -235,7 +235,7 @@ impl SwindleStateTrait for SwindleExecutor {
             let _ = idf::esp_wifi_disconnect();
             let _ = idf::esp_wifi_stop();
 
-            let _ret = idf::wifi_prov_mgr_reset_provisioning();
+            let _ret = idf::network_prov_mgr_reset_wifi_provisioning();
         }
         fsm_led::set_color(settings::WS2812_RESET);
     }

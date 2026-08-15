@@ -1,17 +1,17 @@
 {
   "rust-analyzer.checkOnSave.allTargets": false,
   //"espRiscvToolchainPath": "/home/fx/Arduino_esp32/espressif/tools/riscv32-esp-elf-gdb/14.2_20240403/riscv32-esp-elf-gdb/bin/",
-  "espRiscvToolchainPath": "/espressif/esp_tools/tools/riscv32-esp-elf-gdb/14.2_20240403/riscv32-esp-elf-gdb/bin/",
-  "espxtensaToolchainPath" :"/espressif/esp_tools/tools/xtensa-esp-elf-gdb/14.2_20240403/xtensa-esp-elf-gdb/bin/",
+  "espRiscvToolchainPath": "/espressif/esp_tools/tools/riscv32-esp-elf-gdb/17.1_20260402/riscv32-esp-elf-gdb/bin/",
+  "espxtensaToolchainPath" :"/espressif/esp_tools/tools/xtensa-esp-elf-gdb/17.1_20260402/xtensa-esp-elf-gdb/bin/",
   "myRiscvToolchainPath": "/riscv/xpack-14.2.0-2/bin/",
  // "riscv_openocd_path" : "/home/fx/Arduino_esp32/./espressif/tools/openocd-esp32/v0.12.0-esp32-20241016/openocd-esp32/bin/",
- "riscv_openocd_path" : "/espressif/esp_tools/tools/openocd-esp32/v0.12.0-esp32-20250707/openocd-esp32/bin/",
-  "idf.adapterTargetName": "esp32c6",
-  "idf.port": "/dev/ttyESP32C6",
+ "riscv_openocd_path" : "/espressif/esp_tools/tools/openocd-esp32/v0.12.0-esp32-20260424/openocd-esp32/bin/",
+  "idf.adapterTargetName": "esp32c3",
+  "idf.port": "/dev/ttyESP3ttyACM02C6",
   "idf.flashType": "JTAG",
-  "idf.openOcdConfigs": ["board/esp32s3-builtin.cfg"],
+  "idf.openOcdConfigs": ["board/esp32c3-builtin.cfg"],
   "idf.customExtraVars": {
-    "IDF_TARGET": "esp32s3"
+    "IDF_TARGET": "esp32c3"
   },
-  "idf.pythonInstallPath": "/espressif/esp_tools/python_env/idf5.3_py3.13_env/bin/python"
+  "idf.pythonInstallPath": "/espressif/esp_tools/python_env/idf6.0_py3.14_env/bin/python"
 }

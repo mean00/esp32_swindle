@@ -19,6 +19,13 @@ default = []
 name = "extra_code" 
 path = "src/lib.rs"
 
+# Extra IDF components for the esp-idf-sys build (network_provisioning + cjson,
+# vendored under the workspace root's components/). Relative paths resolve
+# against THIS manifest's folder, so "../components" is relocatable. NOTE:
+# serde field names are used verbatim — `extra_components` / `component_dirs`.
+[package.metadata.esp-idf-sys]
+extra_components = [{ component_dirs = "../components" }]
+
 #experimental = ["esp-idf-svc/experimental"]
 
 [dependencies]

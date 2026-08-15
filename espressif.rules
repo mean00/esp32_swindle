@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+# Copy this file to /etc/udev/rules.d/
+# If rules fail to reload automatically, you can refresh udev rules
+# with the command "udevadm control --reload"
+
+# Espressif USB JTAG/serial debug units
+ATTRS{idVendor}=="303a", ATTRS{idProduct}=="1001", MODE="660", GROUP="plugdev", TAG+="uaccess", SYMLINK+="ttyEsp"
+ATTRS{idVendor}=="303a", ATTRS{idProduct}=="1002", MODE="660", GROUP="plugdev", TAG+="uaccess", SYMLLINK+="ttyEsp2"

@@ -5,12 +5,12 @@ use esp_idf_svc::eventloop::EspSystemEventLoop;
 use esp_idf_svc::nvs::EspDefaultNvsPartition;
 use num_traits::{FromPrimitive, ToPrimitive};
 //
-use esp_idf_svc::hal::prelude::Peripherals;
+use esp_idf_svc::hal::peripherals::Peripherals;
 //
 use esp_idf_hal::gpio::{PinDriver, Pull};
 //
 #[allow(unused_imports)]
-use rsbmp::rngdbstub_init; // make sure it is not removed by linker!
+use rsbmp::native; // keep rsbmp linked: rngdbstub_init/run/shutdown are referenced from handle_connection via extern "C"
 //
 use swindle_if::swindle_sys_init;
 //
@@ -110,8 +110,7 @@ fn main() -> anyhow::Result<()> {
 
     let mut initial_event: SwindleEvents = SwindleEvents::Start;
 
-    let mut user_button = PinDriver::input(peripherals.pins.gpio1)?;
-    user_button.set_pull(Pull::Up)?;
+    let mut user_button = PinDriver::input(peripherals.pins.gpio1, Pull::Up)?;
     std::thread::sleep(std::time::Duration::from_millis(5));
 
     if user_button.is_low() {

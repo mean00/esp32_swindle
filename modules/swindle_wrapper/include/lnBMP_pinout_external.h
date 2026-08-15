@@ -1,5 +1,23 @@
+#include "sdkconfig.h"
 
 // mapping of BMP gpio to the GPIO we use
+#if defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32C6)
+const lnPin _mapping[10] = {
+    (lnPin)0, // 0 TMS_PIN
+    (lnPin)0, // 1 TDI_PIN
+    (lnPin)0, // 2 TDO_PIN
+    (lnPin)0, // 3 TCK_PIN
+    (lnPin)0, // 4 TRACESWO_PIN
+
+    (lnPin)GPIO4, // 5 SWDIO_PIN
+    (lnPin)GPIO5, // 6 SWCLK_PIN
+
+    (lnPin)GPIO6, // 7 RST
+    (lnPin)GPIO7, // 8 direction
+    (lnPin)GPIO8, // 9 SWDIO2
+};
+#define LN_ESP_2812_PIN 8
+#elif defined(CONFIG_IDF_TARGET_ESP32S3)
 const lnPin _mapping[10] = {
     (lnPin)0, // 0 TMS_PIN
     (lnPin)0, // 1 TDI_PIN
@@ -13,8 +31,11 @@ const lnPin _mapping[10] = {
     (lnPin)GPIO1,  // 7 RST
     (lnPin)GPIO2,  // 8 direction
     (lnPin)GPIO16, // 9 SWDIO2
-                   //
 };
+#define LN_ESP_2812_PIN 48
+#else
+#error "Unsupported target! Please define pin mappings for this architecture."
+#endif
 
 #define PIN_ADC_NRESET_DIV_BY_TWO GPIO3 // this pins is connected to NRST/2
 #define PIN_ADC_NRESET_MULTIPLIER 1.    // 2.0 if divided by 2 , 1.0 if not divided

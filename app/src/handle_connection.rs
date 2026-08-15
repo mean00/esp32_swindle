@@ -10,6 +10,7 @@ use crate::BiQueue;
 use crate::SwindleEvents;
 use lazy_static::lazy_static;
 use std::io::Read;
+use std::io::Write;
 use std::net::TcpStream;
 use std::os::fd::AsRawFd;
 use std::sync::Mutex;
@@ -125,6 +126,21 @@ pub extern "C" fn rngdb_send_data_c(sz: u32, ptr: *const u8) {
     WRITE_HALF.with(|ctx| {
         ctx.push(sz, ptr);
     });
+}
+/*
+ *
+ *
+ */
+// The swindle C++ c_interface (bmp_interface_usb.cpp) registers this as the
+// logger callback (setLogger). This build is a TCP probe with no USB serial
+// bridge; the new rsbmp no longer provides the symbol in network mode, so we
+// provide it here and forward the log text to the console.
+#[unsafe(no_mangle)]
+pub extern "C" fn rn_serial_bridge_write(n: i32, data: *const u8) {
+    if n > 0 && !data.is_null() {
+        let slice = unsafe { std::slice::from_raw_parts(data, n as usize) };
+        let _ = std::io::stdout().write_all(slice);
+    }
 }
 /*
  *

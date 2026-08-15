@@ -42,7 +42,9 @@
         
         "mon reset halt ",
         "flushregs",
-        "thb app_main"
+        "thb app_main",
+        "hb _panic_handler",
+        "hb gpio_config"
       ],
       "preRestartCommands": ["mon reset halt"]
     }

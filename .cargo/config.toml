@@ -15,16 +15,28 @@
 #----------------------------------
 
 [build]
-target = "xtensa-esp32s3-espidf"
+#target = "xtensa-esp32s3-espidf"
 #target = "riscv32imac-esp-espidf"
-#target = "riscv32imc-esp-espidf"
+target = "riscv32imc-esp-espidf"
 
 [env]
-#MCU="esp32c3"
+MCU="esp32c3"
 #MCU="esp32c6"
-MCU="esp32s3"
+#MCU="esp32s3"
 # 1. Force the exact ESP-IDF version
-ESP_IDF_VERSION = "v5.4"
+ESP_IDF_VERSION = "v6.0.2"
+# NOTE: cargo does not apply a `[env]` PATH override to build scripts; the
+# cross-toolchain lookup for native_code is done in native_code/build.rs
+# (falls back to `.embuild/espressif/tools` when the tools are not on PATH).
+# Extra IDF components (network_provisioning + cjson; IDF 6.0 dropped the
+# core wifi_provisioning/json components) are vendored under ./components.
+# esp-idf-sys picks them up from `[package.metadata.esp-idf-sys]
+# extra-components` in app/native_code/extra_code Cargo.toml (a relocatable
+# relative path), NOT from EXTRA_COMPONENT_DIRS (which it overrides from its
+# own config). This workspace is virtual (no root [package]), so cargo_metadata
+# cannot identify a root crate on its own — ESP_IDF_SYS_ROOT_CRATE tells
+# esp-idf-sys whose manifest to read (app carries the extra-components config).
+ESP_IDF_SYS_ROOT_CRATE = "app"
 
 # __________________________
 # This is used by esp32c3
@@ -33,7 +45,15 @@ ESP_IDF_VERSION = "v5.4"
 #linker = "ldproxy"
 linker = "ldproxy"
 runner = "espflash flash --monitor"
-rustflags = [ "--cfg",  "espidf_time64","-C","default-linker-libraries"]
+rustflags = [ "--cfg",  "espidf_time64",
+        "-C","default-linker-libraries",
+        "-C","force-unwind-tables=no",
+        "-C","link-arg=-Wl,--no-eh-frame-hdr"
+]
+
+
+
+
 # This is used by esp32c6
 # __________________________
 [target.riscv32imac-esp-espidf]
