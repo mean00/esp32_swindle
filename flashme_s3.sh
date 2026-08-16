@@ -1,1 +1,2 @@
-espflash flash -M ./target/xtensa-esp32s3-espidf/debug/swindle_s3
+#espflash flash -p /dev/ttyEsp -M ./target/swindle_esp32s3_full
+espflash flash -M ./target/swindle_esp32s3_full

@@ -122,7 +122,7 @@ fn main() -> anyhow::Result<()> {
 
     provisioning::init();
 
-    println!("Starting event loop...");
+    log::info!("Starting event loop...");
     // Start the even loop
     {
         let mut q = static_queue.lock().unwrap();
@@ -140,15 +140,15 @@ fn main() -> anyhow::Result<()> {
             count += 1;
             if count > 10 {
                 count = 0;
-                println!(".");
+                log::info!(".");
             }
             continue;
         }
         if let Some(event) = fsm::SwindleEvents::from_u32(raw_event) {
-            println!("Successfully received event: {:?}", event);
+            log::info!("Successfully received event: {:?}", event);
             runner.handle_event(&event);
         } else {
-            println!("Received an unknown event ID: {}", raw_event);
+            log::info!("Received an unknown event ID: {}", raw_event);
         }
         // check for outbox, i.e. the FSM sending message to itself
         if let Some(outgoing_msg) = runner.take_outbox() {

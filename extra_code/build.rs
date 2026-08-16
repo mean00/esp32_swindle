@@ -149,6 +149,8 @@ fn find_sdkconfig_include() -> PathBuf {
 //
 
 fn main() {
+    println!("cargo:rerun-if-env-changed=MCU");
+    println!("cargo:rerun-if-env-changed=SWINDLE_SIZE");
     let _idf_path = env::var("IDF_PATH").expect("IDF_PATH must be set to your ESP-IDF checkout");
     let config = find_sdkconfig_include();
 
@@ -185,6 +187,13 @@ fn main() {
     let cc = get_tool_path(triplet, "-gcc");
     let cxx = get_tool_path(triplet, "-g++");
 
+    let board = env::var("SWINDLE_SIZE").unwrap_or("full".to_string());
+    let ln_esp_board = match board.as_str() {
+        "mini" => "mini",
+        "zero" => "zero",
+        _ => "full",
+    };
+
     println!("cargo:warning=  Collecting path");
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let install_path = out_dir.join("../../native");
@@ -200,7 +209,10 @@ fn main() {
         .define("CMAKE_CXX_COMPILER_WORKS", "ON")
         .define("CMAKE_ASM_COMPILER_WORKS", "ON")
         .define("LN_ESP_MCU", &ln_esp_mcu)
+        .define("LN_ESP_BOARD", &ln_esp_board)
         .define("CMAKE_INSTALL_PREFIX", &install_path)
+        .cflag(format!("-DLN_BOARD_SIZE_{}=1", ln_esp_board.to_uppercase()))
+        .cxxflag(format!("-DLN_BOARD_SIZE_{}=1", ln_esp_board.to_uppercase()))
         .cflag(format!("-I{}", config.display()))
         .cxxflag(format!("-I{}", config.display()));
     // See native_code/build.rs for the full explanation: when the SDK uses

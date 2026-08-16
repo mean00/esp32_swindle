@@ -57,7 +57,7 @@ impl SwindleExecutor {
         rx: Receiver<GdbControl>,
         event_queue: &'static Mutex<BiQueue>,
     ) {
-        println!("Gdb slave started...");
+        log::info!("Gdb slave started...");
         unsafe {
             pins_init();
         }
@@ -65,7 +65,7 @@ impl SwindleExecutor {
         while let Ok(cmd) = rx.recv() {
             match cmd {
                 GdbControl::StartServer => {
-                    println!("GDB Slave: Bound to port 8080, waiting for connection...");
+                    log::info!("GDB Slave: Bound to port 8080, waiting for connection...");
                     let listener = TcpListener::bind("0.0.0.0:8080").unwrap();
                     fsm_led::set_color(settings::WS2812_WAITING);
 
@@ -73,14 +73,14 @@ impl SwindleExecutor {
                     for stream in listener.incoming() {
                         match stream {
                             Ok(stream) => {
-                                println!("New Gdb Connection ");
+                                log::info!("New Gdb Connection ");
                                 fsm_led::set_color(settings::WS2812_ATTACHED);
                                 Self::emit(event_queue, SwindleEvents::Attach);
                                 crate::handle_connection::handle_gdb(stream, event_queue);
                                 fsm_led::set_color(settings::WS2812_WAITING);
                             }
                             Err(e) => {
-                                println!("Error accepting connection: {}", e);
+                                log::info!("Error accepting connection: {}", e);
                                 break;
                             }
                         }
@@ -151,11 +151,11 @@ impl SwindleExecutor {
                                 }
                                 WifiCommand::StartServer => {
                                     // Start the socket server logic
-                                    println!("Executer: start_server");
+                                    log::info!("Executer: start_server");
                                     gdb_tx.send(GdbControl::StartServer).unwrap();
                                 }
                                 WifiCommand::KillGdb => {
-                                    println!("Executer: stop gdb");
+                                    log::info!("Executer: stop gdb");
                                     stop_gdb(event_queue);
                                 }
                             } // match
@@ -177,15 +177,15 @@ impl SwindleExecutor {
     }
     //
     async fn handle_dhcp(wifi: &mut AsyncWifi<&mut EspWifi<'static>>, q: &Mutex<BiQueue>) {
-        println!("Worker: Starting Wifi & DHCP ");
+        log::info!("Worker: Starting Wifi & DHCP ");
         // The async sequence
         if !wifi.is_started().unwrap() {
-            println!("Starting WiFi ");
+            log::info!("Starting WiFi ");
             crate::wifi_util::set_country_code();
             crate::wifi_util::set_wifi_tx_power();
             if wifi.start().await.is_ok() {
                 // You can still do connect() if needed, or just return
-                println!("Wifi started...");
+                log::info!("Wifi started...");
                 // Disable Power Save mode to prevent DHCP retries due to Modem Sleep missing DHCP offers
                 unsafe {
                     esp_idf_sys::esp_wifi_set_ps(esp_idf_sys::wifi_ps_type_t_WIFI_PS_NONE);
@@ -194,29 +194,29 @@ impl SwindleExecutor {
                 panic!("cannot start wifi"); // FIXME
             }
         } else {
-            println!("Wifi already started");
+            log::info!("Wifi already started");
         }
 
-        println!("Worker: Starting DHCP...");
+        log::info!("Worker: Starting DHCP...");
 
         if wifi.connect().await.is_ok() {
             match wifi.wait_netif_up().await {
                 Ok(_) => {
-                    println!("Worker: Got IP!");
+                    log::info!("Worker: Got IP!");
                     let netif = wifi.wifi().sta_netif();
                     if let Ok(ip_info) = netif.get_ip_info() {
-                        println!("Worker: Got IP! Address: {}", ip_info.ip);
+                        log::info!("Worker: Got IP! Address: {}", ip_info.ip);
                     }
                     Self::emit(q, SwindleEvents::IpReady);
                 }
                 Err(e) => {
-                    println!("Worker: DHCP Failed: {:?}", e);
+                    log::info!("Worker: DHCP Failed: {:?}", e);
                     let _ = wifi.disconnect().await;
                     Self::emit(q, SwindleEvents::NetworkLoss);
                 }
             }
         } else {
-            println!("Worker: Failed to start/connect");
+            log::info!("Worker: Failed to start/connect");
             let _ = wifi.disconnect().await;
             Self::emit(q, SwindleEvents::NetworkLoss);
         }
@@ -225,7 +225,7 @@ impl SwindleExecutor {
 // 2. Implement the trait
 impl SwindleStateTrait for SwindleExecutor {
     fn start_dhcp(&self) {
-        println!("FSM: Requesting DHCP for SSID"); //": {}", credentials::SSID);
+        log::info!("FSM: Requesting DHCP for SSID"); //": {}", credentials::SSID);
         let _ = self.cmd_tx.send(WifiCommand::StartDhcp);
     }
     //
@@ -241,29 +241,29 @@ impl SwindleStateTrait for SwindleExecutor {
     }
 
     fn start_ble_provisioning(&self) {
-        println!("Executor: Entering BLE provisioning mode...");
+        log::info!("Executor: Entering BLE provisioning mode...");
         let _ = self.cmd_tx.send(WifiCommand::Provision);
     }
 
     fn start_sockets(&self) {
-        println!("Executor: Opening TCP/UDP sockets...");
+        log::info!("Executor: Opening TCP/UDP sockets...");
         let _ = self.cmd_tx.send(WifiCommand::StartServer);
     }
 
     fn stop_sockets(&self) {
-        println!("Executor: Closing all active sockets.");
+        log::info!("Executor: Closing all active sockets.");
         let _ = self.cmd_tx.send(WifiCommand::KillGdb);
     }
 
     fn start_swindle(&self) {
-        println!("Executor: Swindle protocol ACTIVE.");
+        log::info!("Executor: Swindle protocol ACTIVE.");
     }
     fn has_provisioning(&self) -> bool {
         crate::provisioning::is_provisioned()
     }
 
     fn stop_swindle(&self) {
-        println!("Executor: Swindle protocol STOPPED.");
+        log::info!("Executor: Swindle protocol STOPPED.");
     }
 }
 // EOF

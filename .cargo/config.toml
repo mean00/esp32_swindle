@@ -16,12 +16,12 @@
 
 [build]
 #target = "xtensa-esp32s3-espidf"
-#target = "riscv32imac-esp-espidf"
-target = "riscv32imc-esp-espidf"
+target = "riscv32imac-esp-espidf"
+#target = "riscv32imc-esp-espidf"
 
 [env]
-MCU="esp32c3"
-#MCU="esp32c6"
+#MCU="esp32c3"
+MCU="esp32c6"
 #MCU="esp32s3"
 # 1. Force the exact ESP-IDF version
 ESP_IDF_VERSION = "v6.0.2"

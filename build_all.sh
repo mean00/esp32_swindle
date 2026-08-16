@@ -6,6 +6,39 @@ echo "ESP_IDF_PATH is {${IDF_PATH}}"
   exit 1
 }
 
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+    echo "Usage: ./build_all.sh [MCU] [SIZE]"
+    echo ""
+    echo "Builds the Swindle firmware for the specified MCU and board size."
+    echo ""
+    echo "Arguments:"
+    echo "  MCU   The target MCU (e.g., esp32c3, esp32s3, esp32c6). Default: esp32c3"
+    echo "  SIZE  The board size profile (e.g., full, mini, zero). Default: full"
+    echo ""
+    echo "Examples:"
+    echo "  ./build_all.sh esp32c3 full"
+    echo "  ./build_all.sh esp32s3 mini"
+    echo ""
+    echo "The compiled binary will be copied to the target/ directory with the name: swindle_MCU_SIZE"
+    exit 0
+fi
+
+MCU_ARG=${1:-esp32c3}
+PROFILE_ARG=${2:-full}
+
+export MCU=$MCU_ARG
+export SWINDLE_SIZE=$PROFILE_ARG
+
+if [ "$MCU" == "esp32s3" ]; then
+    TARGET="xtensa-esp32s3-espidf"
+elif [ "$MCU" == "esp32c6" ]; then
+    TARGET="riscv32imac-esp-espidf"
+else
+    TARGET="riscv32imc-esp-espidf"
+fi
+
+echo "Building for $MCU with size $SWINDLE_SIZE (target $TARGET)..."
+
 # --- optional sccache acceleration -------------------------------------------
 # If sccache is available, cache BOTH the Rust crates (RUSTC_WRAPPER) and the
 # C/C++ builds (CMAKE_*_COMPILER_LAUNCHER via ESP_IDF_SYS_C_COMPILER_LAUNCHER,
@@ -32,5 +65,17 @@ fi
 # configure loses the `-I<esp-idf-sys>/out/build/config` flag, so the swindle
 # C++ fails to find sdkconfig.h. A single invocation builds esp-idf-sys exactly
 # once and keeps that include path stable.
-cargo build -p native_code -p extra_code -p app
-#&& bash flashme_s3.sh
+if cargo build --target $TARGET -p native_code -p extra_code -p app; then
+    OUT_DIR="target"
+    mkdir -p "$OUT_DIR"
+    cp "target/$TARGET/debug/swindle_s3" "$OUT_DIR/swindle_${MCU}_${SWINDLE_SIZE}"
+    echo ""
+    echo "===================================================================="
+    echo "Build successful! Binary copied to: $OUT_DIR/swindle_${MCU}_${SWINDLE_SIZE}"
+    echo "To flash: espflash flash -M $OUT_DIR/swindle_${MCU}_${SWINDLE_SIZE}"
+    echo "===================================================================="
+else
+    echo "Build failed!"
+    exit 1
+fi
+

@@ -155,7 +155,8 @@ fn main() {
     println!("cargo:rerun-if-changed=../modules/swindle_wrapper");
     println!("cargo:rerun-if-changed=../modules/swindle");
     println!("cargo:rerun-if-changed=../modules/swindle/esprit");
-
+    println!("cargo:rerun-if-env-changed=MCU");
+    println!("cargo:rerun-if-env-changed=SWINDLE_SIZE");
     let _idf_path = env::var("IDF_PATH").expect("IDF_PATH must be set to your ESP-IDF checkout");
     let config = find_sdkconfig_include();
 
@@ -192,10 +193,11 @@ fn main() {
     let cc = get_tool_path(triplet, "-gcc");
     let cxx = get_tool_path(triplet, "-g++");
     //let ln_esp_board = "mini";
-    let board = env::var("ln_board").unwrap_or("default".to_string());
+    let board = env::var("SWINDLE_SIZE").unwrap_or("full".to_string());
     let ln_esp_board = match board.as_str() {
         "mini" => "mini",
-        _ => "wroom",
+        "zero" => "zero",
+        _ => "full",
     };
 
     println!("cargo:warning=Collecting paths ");
@@ -215,6 +217,8 @@ fn main() {
         .define("LN_ESP_MCU", &ln_esp_mcu)
         .define("LN_ESP_BOARD", &ln_esp_board)
         .define("CMAKE_INSTALL_PREFIX", &install_path)
+        .cflag(format!("-DLN_BOARD_SIZE_{}=1", ln_esp_board.to_uppercase()))
+        .cxxflag(format!("-DLN_BOARD_SIZE_{}=1", ln_esp_board.to_uppercase()))
         .cflag(format!("-I{}", config.display()))
         .cxxflag(format!("-I{}", config.display()));
     // The esprit C/C++ is compiled against the toolchain's NEWLIB sysroot by
