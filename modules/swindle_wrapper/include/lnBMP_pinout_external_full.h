@@ -11,9 +11,9 @@ const lnPin _mapping[10] = {
     (lnPin)GPIO18, // 5 SWDIO_PIN
     (lnPin)GPIO17, // 6 SWCLK_PIN
 
-    (lnPin)GPIO1,  // 7 RST
-    (lnPin)GPIO2,  // 8 direction
-    (lnPin)GPIO16, // 9 SWDIO2
+    (lnPin)GPIO2,  // 7 RST
+    (lnPin)GPIO16, // 8 direction
+    (lnPin)GPIO0,  // 9 SWDIO2
 };
 #define LN_ESP_2812_PIN 48
 

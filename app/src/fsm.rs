@@ -52,31 +52,31 @@ impl MachineContext {
         self.outbox = Some(event);
     }
     fn start_dhcp(&self) {
-        println!("start_dhcp");
+        log::info!("start_dhcp");
         fsm_led::set_color(settings::WS2812_DHCPING);
         self.executer.start_dhcp();
     }
     fn reset_provisioning(&self) {
-        println!("reset_provisioning");
+        log::info!("reset_provisioning");
         self.executer.reset_provisioning();
     }
     fn start_ble_provisioning(&self) {
-        println!("start_ble_prov");
+        log::info!("start_ble_prov");
         fsm_led::set_color(settings::WS2812_PROVISIONING);
         self.executer.start_ble_provisioning();
     }
     fn start_sockets(&self) {
-        println!("start sockets");
+        log::info!("start sockets");
         self.executer.start_sockets();
     }
     fn stop_sockets(&self) {
-        println!("stop sockets");
+        log::info!("stop sockets");
     }
     fn start_swindle(&self) {
-        println!("start swindle");
+        log::info!("start swindle");
     }
     fn stop_swindle(&self) {
-        println!("stop swindle");
+        log::info!("stop swindle");
     }
 }
 
@@ -86,7 +86,7 @@ impl StateBehavior for MachineStates {
     type Context = MachineContext;
 
     fn enter(&self, _context: &mut Self::Context) {
-        println!("====> [{:?}]", self);
+        log::info!("====> [{:?}]", self);
     }
 
     fn handle_event(
@@ -94,7 +94,7 @@ impl StateBehavior for MachineStates {
         event: &Self::Event<'_>,
         context: &mut Self::Context,
     ) -> Option<Self::State> {
-        println!("[{:?}]<==== {:?}", self, event);
+        log::info!("[{:?}]<==== {:?}", self, event);
         match (self, event) {
             (&MachineStates::Idle, &SwindleEvents::ResetConfiguration) => {
                 context.reset_provisioning();
@@ -140,7 +140,7 @@ impl StateBehavior for MachineStates {
                 Some(MachineStates::DhcpIng)
             }
             _ => {
-                println!(
+                log::info!(
                     "<<<<<<<Ignored Event {:?} in state {:?} >>>>>>>",
                     self, event
                 );

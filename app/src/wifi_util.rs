@@ -7,7 +7,7 @@ use esp_idf_svc::sys::{
 
 pub fn set_country_code() {
     // 4. Start Wi-Fi and Connect
-    println!("Setting CC ...");
+    log::info!("Setting CC ...");
     let country = wifi_country_t {
         cc: *b"FR\0",
         schan: 1,
@@ -19,9 +19,9 @@ pub fn set_country_code() {
     unsafe {
         let err = esp_wifi_set_country(&country);
         if err != 0 {
-            println!("Failed to set country code: {}", err);
+            log::info!("Failed to set country code: {}", err);
         } else {
-            println!("Country set to FR (Channels 1-13 enabled)");
+            log::info!("Country set to FR (Channels 1-13 enabled)");
         }
     }
 }
@@ -30,7 +30,7 @@ pub fn set_wifi_tx_power() {
     unsafe {
         let mut power: i8 = 0;
         esp_wifi_get_max_tx_power(&mut power);
-        println!("raw tx power {}", power);
+        log::info!("raw tx power {}", power);
         // 20 + 5 db
         // 30 + 8 db
         // 52 + 16 db
@@ -42,6 +42,6 @@ pub fn set_wifi_tx_power() {
         // 30 -> no
         esp_wifi_set_max_tx_power(50); // 34 is 8.5 dbm
         esp_wifi_get_max_tx_power(&mut power);
-        println!("new tx power {}", power);
+        log::info!("new tx power {}", power);
     }
 }

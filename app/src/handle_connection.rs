@@ -172,7 +172,7 @@ pub fn handle_gdb(mut stream: TcpStream, q: &Mutex<BiQueue>) {
         //let buffer: &mut [u8; 1024] = &mut **buffer_guard;
         let buffer: &mut [u8; 1024] = &mut buffer_guard;
         unsafe {
-            println!(
+            log::info!(
                 "GDB Handler running on core: {:?}",
                 esp_idf_svc::sys::xTaskGetCoreID(std::ptr::null_mut())
             );

@@ -62,28 +62,28 @@ unsafe extern "C" fn ev_callback(
     event: idf::network_prov_cb_event_t,
     _event_data: *mut std::ffi::c_void,
 ) {
-    println!(" RECEIVED Raw EVENT : {}", event);
+    log::info!(" RECEIVED Raw EVENT : {}", event);
     let prov_event = match ProvEvent::from_raw(event) {
         Some(x) => x,
         _ => {
-            println!("unsupported");
+            log::info!("unsupported");
             return;
         }
     };
 
-    println!(" EVENT : {:?}", prov_event);
+    log::info!(" EVENT : {:?}", prov_event);
     match prov_event {
         ProvEvent::Init | ProvEvent::Start | ProvEvent::CredRecv => {}
         ProvEvent::ProvSuccess => {
             print_nvm_config();
         }
         ProvEvent::CredFail | ProvEvent::ProvEnd => {
-            println!("Rebooting....\n");
+            log::info!("Rebooting....\n");
             unsafe {
                 idf::esp_restart();
             }
         }
-    } //_ => println!("unsupported event"),
+    } //_ => log::info!("unsupported event"),
 }
 //
 #[allow(dead_code)]
@@ -98,7 +98,7 @@ pub fn clear_provision() {
     */
     unsafe {
         let mut handle: idf::nvs_handle_t = 0;
-        println!("Erasing NVM \n");
+        log::info!("Erasing NVM \n");
 
         // Open NVS in read-write mode (namespace is usually "wifi" for provisioning)
         let err = idf::nvs_open(
@@ -108,14 +108,14 @@ pub fn clear_provision() {
         );
 
         if err != ESP_OK {
-            println!("NVM Erase failure!\n");
+            log::info!("NVM Erase failure!\n");
             return;
         }
 
         idf::nvs_erase_all(handle);
         idf::nvs_commit(handle);
         idf::nvs_close(handle);
-        println!("NVM Erased\n");
+        log::info!("NVM Erased\n");
     }
 }
 //
@@ -125,7 +125,7 @@ pub fn is_provisioned() -> bool {
     unsafe {
         idf::network_prov_mgr_is_wifi_provisioned(&mut provisioned);
     }
-    println!("Device provisioned ? <{provisioned}>");
+    log::info!("Device provisioned ? <{provisioned}>");
     provisioned
 }
 //
@@ -153,8 +153,8 @@ pub fn init() {
 #[allow(dead_code)]
 pub fn provision(_event_queue: &'static Mutex<BiQueue>) {
     // 3. Check if already provisioned
-    println!("=== Device NOT provisioned ===");
-    println!("Starting BLE provisioning... Use the official Espressif Provisioning app");
+    log::info!("=== Device NOT provisioned ===");
+    log::info!("Starting BLE provisioning... Use the official Espressif Provisioning app");
     /*
     unsafe {
         esp_idf_sys::nvs_flash_erase();
@@ -173,7 +173,7 @@ pub fn provision(_event_queue: &'static Mutex<BiQueue>) {
             ptr::null(), // service_key = NULL for BLE
         );
     }
-    println!("BLE provisioning active – connect with the app now!");
+    log::info!("BLE provisioning active – connect with the app now!");
     loop {
         std::thread::sleep(std::time::Duration::from_secs(5));
     }

@@ -110,8 +110,11 @@ fn main() -> anyhow::Result<()> {
 
     let mut initial_event: SwindleEvents = SwindleEvents::Start;
 
-    let mut user_button = PinDriver::input(peripherals.pins.gpio1, Pull::Up)?;
-    std::thread::sleep(std::time::Duration::from_millis(5));
+    unsafe {
+        esp_idf_svc::hal::sys::gpio_reset_pin(esp_idf_svc::hal::sys::gpio_num_t_GPIO_NUM_1);
+    }
+    let user_button = PinDriver::input(peripherals.pins.gpio1, Pull::Up)?;
+    std::thread::sleep(std::time::Duration::from_millis(50));
 
     if user_button.is_low() {
         std::thread::sleep(std::time::Duration::from_millis(1000));
