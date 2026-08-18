@@ -3,7 +3,7 @@
 [![ESP-IDF 6.0](https://img.shields.io/badge/ESP--IDF-v6.0-red.svg)](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/index.html)
 [![Rust](https://img.shields.io/badge/Rust-1.77+-orange.svg)](https://rust-lang.org)
 
-Swindle ESP32 is a fast, wireless SWD debugger port for ESP32 microcontrollers. It allows you to debug ARM/RISC-V targets over WiFi using a tiny, low-cost ESP32 board.
+Swindle ESP32 is a fast, wireless SWD debugger port for ESP32 microcontrollers. It allows you to debug ARM/WCH RISC-V targets over WiFi using a tiny, low-cost ESP32 board.
 
 > 📸 _Pictured: A tiny ESP32-S3 debugging an STM32 over WiFi. The USB connection is only used for power._
 > ![Screenshot](assets/web/s3mini.png?raw=true "front")
