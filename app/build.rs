@@ -66,6 +66,23 @@ fn main() {
         "cargo:rustc-link-search=native={}/native/lib",
         native.display()
     );
+    // The C/C++ static libs above are not cargo dependencies, so cargo would
+    // not otherwise notice when build_all.sh reinstalls them after switching
+    // SIZE (SWINDLE_SIZE) or RESET polarity (SWINDLE_NRST). Track them so the
+    // firmware is always relinked against the freshly built libraries.
+    let native_lib = native.join("native").join("lib");
+    println!(
+        "cargo:rerun-if-changed={}",
+        native_lib.join("libswindle_single.a").display()
+    );
+    println!(
+        "cargo:rerun-if-changed={}",
+        native_lib.join("libesprit_single_lib.a").display()
+    );
+    println!(
+        "cargo:rerun-if-changed={}",
+        native_lib.join("libesp32_ws2812.a").display()
+    );
     //println!("cargo:rerun-if-env-changed=IDF_PATH");
     //println!("cargo:rerun-if-changed=modules/swindle_wrapper");
 }

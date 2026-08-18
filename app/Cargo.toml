@@ -44,6 +44,15 @@ heapless = "0.9.2"
 rust-sfsm  = { version = "1.0.0", default-features = false}
 lazy_static = { version = "1.5.0"}
 
+# Link-time ordering deps: these crates' build scripts compile and install
+# libswindle_single.a, libesprit_single_lib.a and libesp32_ws2812.a into
+# target/<triple>/<profile>/build/native/lib. Depending on them makes cargo
+# build the C/C++ libs before swindle_s3 links and relink the binary whenever
+# build_all.sh switches SIZE or RESET polarity (SWINDLE_SIZE/SWINDLE_NRST
+# trigger their build scripts to re-run, which invalidates app's fingerprint).
+native_code = { path = "../native_code" }
+extra_code = { path = "../extra_code" }
+
 
 [build-dependencies]
 embuild = "0.33.1"
