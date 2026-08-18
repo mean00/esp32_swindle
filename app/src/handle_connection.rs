@@ -181,6 +181,11 @@ pub fn handle_gdb(mut stream: TcpStream, q: &Mutex<BiQueue>) {
             match stream.read(buffer) {
                 Ok(n) if n > 0 => unsafe {
                     rngdbstub_run(n as u32, buffer.as_ptr());
+                    // The target may already have halted (e.g. single-step, or
+                    // it hit a breakpoint between packets). rngdbstub_poll()
+                    // sends the stop reply immediately in that case; it is a
+                    // no-op unless the target is actually running.
+                    rngdbstub_poll();
                 },
                 Ok(_) => {
                     // n is 0, which means the socket was closed by the client
@@ -192,6 +197,17 @@ pub fn handle_gdb(mut stream: TcpStream, q: &Mutex<BiQueue>) {
                     if e.kind() == std::io::ErrorKind::WouldBlock
                         || e.kind() == std::io::ErrorKind::TimedOut =>
                 {
+                    // No GDB data pending (socket read timeout is 20 ms above).
+                    // While the target is running this is the ONLY place that
+                    // polls it: if it halted on a breakpoint/watchpoint/fault
+                    // the stop reply (T05/T11/...) must be sent or GDB will
+                    // wait forever after `continue`. Without this call the
+                    // poll never happens on the TCP build (rngdbstub_poll was
+                    // declared but never invoked), which is exactly why
+                    // breakpoints appeared to "not work".
+                    unsafe {
+                        rngdbstub_poll();
+                    }
                     // give back some CPU to the watchdog task
                     std::thread::sleep(std::time::Duration::from_micros(200));
                 }
