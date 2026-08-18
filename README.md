@@ -5,7 +5,7 @@
 
 Swindle ESP32 is a fast, wireless SWD debugger port for ESP32 microcontrollers. It allows you to debug ARM/RISC-V targets over WiFi using a tiny, low-cost ESP32 board.
 
-> 📸 *Pictured: A tiny ESP32-S3 debugging an STM32 over WiFi. The USB connection is only used for power.*
+> 📸 _Pictured: A tiny ESP32-S3 debugging an STM32 over WiFi. The USB connection is only used for power._
 > ![Screenshot](assets/web/s3mini.png?raw=true "front")
 
 ---
@@ -15,24 +15,26 @@ Swindle ESP32 is a fast, wireless SWD debugger port for ESP32 microcontrollers. 
 The firmware supports dynamic pinout selection depending on your target MCU and board profile. Pinout headers are located in `modules/swindle_wrapper/include/`.
 
 ### ESP32-S3 Mini
-| Function | GPIO | Notes |
-| :--- | :--- | :--- |
-| **SWDIO** | `GPIO7` | Target SWD I/O |
-| **SWDCLK** | `GPIO8` | Target SWD Clock |
-| **RESET** | `GPIO9` | Target Reset |
-| **ADC** | `GPIO10`| Reads target voltage (capped at 3.1V) |
-| **WS2812** | `GPIO21`| Status LED |
-| **PROV RESET** | `GPIO1` | Ground to reset provisioning |
+
+| Function       | GPIO     | Notes                                 |
+| :------------- | :------- | :------------------------------------ |
+| **SWDIO**      | `GPIO7`  | Target SWD I/O                        |
+| **SWDCLK**     | `GPIO8`  | Target SWD Clock                      |
+| **RESET**      | `GPIO9`  | Target Reset(inverted)                |
+| **ADC**        | `GPIO10` | Reads target voltage (capped at 3.1V) |
+| **WS2812**     | `GPIO21` | Status LED                            |
+| **PROV RESET** | `GPIO1`  | Ground to reset provisioning          |
 
 ### ESP32-S3 Dev Board
-| Function | GPIO | Notes |
-| :--- | :--- | :--- |
-| **SWDIO** | `GPIO18`| Target SWD I/O |
-| **SWDCLK** | `GPIO17`| Target SWD Clock |
-| **RESET** | `GPIO2` | Target Reset |
-| **ADC** | `GPIO4` | Reads target voltage (capped at 3.1V) |
-| **WS2812** | `GPIO48`| Status LED |
-| **PROV RESET** | `GPIO1` | Ground to reset provisioning |
+
+| Function       | GPIO     | Notes                                 |
+| :------------- | :------- | :------------------------------------ |
+| **SWDIO**      | `GPIO18` | Target SWD I/O                        |
+| **SWDCLK**     | `GPIO17` | Target SWD Clock                      |
+| **RESET**      | `GPIO2`  | Target Reset                          |
+| **ADC**        | `GPIO4`  | Reads target voltage (capped at 3.1V) |
+| **WS2812**     | `GPIO48` | Status LED                            |
+| **PROV RESET** | `GPIO1`  | Ground to reset provisioning          |
 
 ---
 
@@ -41,18 +43,23 @@ The firmware supports dynamic pinout selection depending on your target MCU and 
 A helper script is provided to automatically compile the Rust and C++ components with the correct configuration, target, and CMake macros.
 
 ```bash
-# Usage: ./build_all.sh [MCU] [SIZE]
+# Usage: ./build_all.sh [MCU] [SIZE] [RESET]
 # MCU options: esp32c3 (default), esp32s3, esp32c6
 # Size options: full (default), mini, zero
+# Reset options: straight (default), inverted
 
 # Example: Build for ESP32-S3 Mini
 ./build_all.sh esp32s3 mini
 
 # Example: Build for ESP32-C3 Full
 ./build_all.sh esp32c3 full
+
+# Example: Build for ESP32-S3 zero board with inverted NRST (via a MOSFET)
+./build_all.sh esp32s3 zero inverted
 ```
 
-The compiled binary will be placed in the `target/` directory as `swindle_MCU_SIZE`.
+The compiled binary will be placed in the `target/` directory as `swindle_MCU_SIZE`
+(or `swindle_MCU_SIZE_inverted` when the `inverted` reset mode is selected).
 
 ## ⚡ Flashing
 
@@ -74,13 +81,13 @@ Swindle uses BLE for initial WiFi credential provisioning.
 
 ### LED Status Indicators
 
-| Color | Status |
-| :--- | :--- |
-| 🔴 **Red** | Waiting for provisioning |
-| 🌸 **Pink/White** | Successfully reset provisioning |
-| 🟡 **Yellow** | Trying to connect to the network |
-| 🟢 **Green** | Connected to WiFi |
-| 🔵 **Blue** | Attached to a debugger / Active |
+| Color             | Status                           |
+| :---------------- | :------------------------------- |
+| 🔴 **Red**        | Waiting for provisioning         |
+| 🌸 **Pink/White** | Successfully reset provisioning  |
+| 🟡 **Yellow**     | Trying to connect to the network |
+| 🟢 **Green**      | Connected to WiFi                |
+| 🔵 **Blue**       | Attached to a debugger / Active  |
 
 ---
 
