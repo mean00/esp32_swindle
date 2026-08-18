@@ -151,6 +151,7 @@ fn find_sdkconfig_include() -> PathBuf {
 fn main() {
     println!("cargo:rerun-if-env-changed=MCU");
     println!("cargo:rerun-if-env-changed=SWINDLE_SIZE");
+    println!("cargo:rerun-if-env-changed=SWINDLE_NRST");
     let _idf_path = env::var("IDF_PATH").expect("IDF_PATH must be set to your ESP-IDF checkout");
     let config = find_sdkconfig_include();
 
@@ -194,6 +195,18 @@ fn main() {
         _ => "full",
     };
 
+    // Reset polarity: forwarded to CMake as USE_INVERTED_NRST for consistency
+    // with native_code (c_src itself does not use it).
+    let nrst = env::var("SWINDLE_NRST").unwrap_or("straight".to_string());
+    let use_inverted_nrst = match nrst.as_str() {
+        "inverted" => "ON",
+        _ => "OFF",
+    };
+    println!(
+        "cargo:warning=  Reset polarity: {} (USE_INVERTED_NRST={})",
+        nrst, use_inverted_nrst
+    );
+
     println!("cargo:warning=  Collecting path");
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let install_path = out_dir.join("../../native");
@@ -210,6 +223,7 @@ fn main() {
         .define("CMAKE_ASM_COMPILER_WORKS", "ON")
         .define("LN_ESP_MCU", &ln_esp_mcu)
         .define("LN_ESP_BOARD", &ln_esp_board)
+        .define("USE_INVERTED_NRST", &use_inverted_nrst)
         .define("CMAKE_INSTALL_PREFIX", &install_path)
         .cflag(format!("-DLN_BOARD_SIZE_{}=1", ln_esp_board.to_uppercase()))
         .cxxflag(format!("-DLN_BOARD_SIZE_{}=1", ln_esp_board.to_uppercase()))
