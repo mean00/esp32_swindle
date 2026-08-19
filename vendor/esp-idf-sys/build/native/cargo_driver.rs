@@ -452,6 +452,42 @@ pub fn build() -> Result<EspIdfBuildOutput> {
     // what build directory it sets, so we hard-code it.
     let cmake_build_dir = out_dir.join("build");
 
+    // The `cmake` crate's `Config::build()` calls `maybe_clear()` on the build
+    // dir: when the existing `CMakeCache.txt` records a `CMAKE_HOME_DIRECTORY`
+    // that differs from the current source dir, it deletes the ENTIRE build dir
+    // before configuring. This bites when the `target/` dir is shared between
+    // environments whose absolute paths differ (e.g. the devcontainer bind-mounts
+    // the workspace, so `out` is `/home/ubuntu/...` in the container but
+    // `/home/fx/...` on the host): `Query::new` below writes the cmake file-api
+    // query into `<out>/build/.cmake/...`, then `cmake_config.build()` wipes it,
+    // the re-configure runs without a client query, no file-api replies are
+    // generated, and `query.get_replies()` fails with
+    // "Failed to list cmake-file-api reply directory".
+    // Mirror the `maybe_clear` check here and pre-emptively remove the stale
+    // build dir so the query written below survives `cmake_config.build()`.
+    if let Ok(cache_contents) = fs::read_to_string(cmake_build_dir.join("CMakeCache.txt")) {
+        let needs_cleanup = cache_contents
+            .lines()
+            .find(|l| l.starts_with("CMAKE_HOME_DIRECTORY"))
+            .and_then(|l| l.split('=').next_back())
+            .map(|cmake_home| {
+                fs::canonicalize(cmake_home)
+                    .ok()
+                    .map(|home| {
+                        home != fs::canonicalize(&out_dir).unwrap_or_else(|_| out_dir.clone())
+                    })
+                    .unwrap_or(true)
+            })
+            .unwrap_or(false);
+        if needs_cleanup {
+            println!(
+                "cargo:warning=esp-idf-sys: cmake home dir change detected; clearing stale build dir {}",
+                cmake_build_dir.display()
+            );
+            fs::remove_dir_all(&cmake_build_dir).ok();
+        }
+    }
+
     let query = cmake::Query::new(
         &cmake_build_dir,
         "cargo",

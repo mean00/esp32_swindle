@@ -53,6 +53,23 @@ refresh.
      shell has the IDF environment activated. A discovered clang's own
      libclang is still used as a fallback when the symlink is absent.
 
+5. **`build/native/cargo_driver.rs`** (native cmake flow, before the
+   `cmake::Query::new` call)
+   - Pre-emptively clears a stale cmake build dir whose `CMakeCache.txt`
+     records a `CMAKE_HOME_DIRECTORY` that differs from the current `out` dir.
+     The `cmake` crate's `Config::build()` does exactly this check internally
+     (`maybe_clear`) and responds by deleting the *entire* build dir — but it
+     runs *after* this file has already written the cmake file-api query
+     (`.cmake/api/v1/query/client-cargo/*`) into that very dir, so the wipe
+     silently deletes the query, the re-configure runs without a client query,
+     no file-api replies are generated and `query.get_replies()` fails with
+     `Failed to list cmake-file-api reply directory`. Triggered whenever
+     `target/` is shared between environments whose absolute paths differ
+     (host `/home/fx/...` vs devcontainer `/home/ubuntu/...`). Mirroring the
+     check *before* `Query::new` keeps the query alive across the (now no-op)
+     `maybe_clear`.
+
+
 ## Why not a git dependency?
 
 With a `[patch.crates-io]` git dependency, `cargo update` (or a re-fetch of
