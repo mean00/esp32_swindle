@@ -7,3 +7,4 @@
 .*~
 openocd.log
 credentials.rs
+artefacts
