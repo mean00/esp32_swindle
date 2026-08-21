@@ -83,6 +83,21 @@ fn main() {
         "cargo:rerun-if-changed={}",
         native_lib.join("libesp32_ws2812.a").display()
     );
+    // Board type propagation to Rust: emit cfg(swindle_board_<board>) and
+    // SWINDLE_BOARD env from the SWINDLE_SIZE var set by build.sh/build_all.sh
+    // (the same var that drives the C/C++ pinout selection). The MCU already
+    // reaches Rust as cfg(esp32s3|esp32c3|esp32c6) via esp-idf-sys.
+    let size = env::var("SWINDLE_SIZE").unwrap_or_else(|_| "dev".to_string());
+    let board = match size.as_str() {
+        "mini" => "zero", // legacy alias
+        "full" => "dev",  // legacy alias
+        other => other,
+    };
+    println!("cargo:rustc-cfg=swindle_board_{}", board);
+    println!("cargo:rustc-env=SWINDLE_BOARD={}", board);
+    println!("cargo:rerun-if-env-changed=SWINDLE_SIZE");
+    println!("cargo:rerun-if-env-changed=SWINDLE_NRST");
+    println!("cargo:rerun-if-env-changed=MCU");
     //println!("cargo:rerun-if-env-changed=IDF_PATH");
     //println!("cargo:rerun-if-changed=modules/swindle_wrapper");
 }

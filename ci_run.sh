@@ -11,18 +11,18 @@ fail() {
 
 runbuild() {
   local cur_dir=$PWD
-  local cpu="${1}"
-  local sz="${2}"
+  local preset="${1}"
   rm -Rf target/
-  bash build_all.sh ${cpu} ${sz} || fail build_failed
-  cp target/swindle_${cpu}_${sz} artefacts/
-  gzip artefacts/swindle_${cpu}_${sz} || fail gzip
+  bash build.sh --preset ${preset} || fail build_failed
+  cp target/swindle_${preset} artefacts/
+  gzip artefacts/swindle_${preset} || fail gzip
 }
 
 mkdir -p artefacts
 rm -Rf artefacts
 mkdir -p artefacts
-runbuild esp32s3 full
-runbuild esp32s3 zero
-runbuild esp32c3 zero
-runbuild esp32c6 zero
+runbuild esp32s3_dev
+runbuild esp32s3_zero
+runbuild esp32c3_zero
+runbuild esp32c6_zero
+runbuild esp32c6_alternatezero

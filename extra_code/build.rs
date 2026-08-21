@@ -188,12 +188,23 @@ fn main() {
     let cc = get_tool_path(triplet, "-gcc");
     let cxx = get_tool_path(triplet, "-g++");
 
-    let board = env::var("SWINDLE_SIZE").unwrap_or("full".to_string());
+    // Board type -> pinout selection. `SWINDLE_SIZE` carries the raw board id
+    // (dev / zero / alternatezero ...), forwarded verbatim to CMake as
+    // LN_ESP_BOARD and as a -DLN_BOARD_SIZE_<UPPER> define (dispatched by
+    // modules/swindle_wrapper/include/lnBMP_pinout_external.h). "mini" and
+    // "full" are legacy aliases of "zero" and "dev".
+    let board = env::var("SWINDLE_SIZE").unwrap_or("dev".to_string());
     let ln_esp_board = match board.as_str() {
-        "mini" => "mini",
-        "zero" => "zero",
-        _ => "full",
+        "mini" => "zero",
+        "full" => "dev",
+        _ => board.as_str(),
     };
+    println!(
+        "cargo:warning=  Board: {} (SWINDLE_SIZE={}, LN_BOARD_SIZE_{})",
+        ln_esp_board,
+        board,
+        ln_esp_board.to_uppercase()
+    );
 
     // Reset polarity: forwarded to CMake as USE_INVERTED_NRST for consistency
     // with native_code (c_src itself does not use it).

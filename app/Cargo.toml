@@ -58,4 +58,4 @@ extra_code = { path = "../extra_code" }
 embuild = "0.33.1"
 
 [lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(esp32c3)','cfg(esp32c6)','cfg(esp32s3)'] }
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(esp32c3)','cfg(esp32c6)','cfg(esp32s3)','cfg(swindle_board_dev)','cfg(swindle_board_zero)','cfg(swindle_board_alternatezero)'] }

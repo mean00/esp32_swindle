@@ -193,13 +193,24 @@ fn main() {
     let ranlib = get_tool_path(triplet, "-ranlib");
     let cc = get_tool_path(triplet, "-gcc");
     let cxx = get_tool_path(triplet, "-g++");
-    //let ln_esp_board = "mini";
-    let board = env::var("SWINDLE_SIZE").unwrap_or("full".to_string());
+    // Board type -> pinout selection. `SWINDLE_SIZE` carries the raw board id
+    // (dev / zero / alternatezero ...), forwarded verbatim to CMake as
+    // LN_ESP_BOARD and as a -DLN_BOARD_SIZE_<UPPER> define. The latter is what
+    // lnBMP_pinout_external.h dispatches on to pick the matching
+    // lnBMP_pinout_external_<board>.h. "mini" and "full" are legacy aliases of
+    // "zero" and "dev" (same pinout headers).
+    let board = env::var("SWINDLE_SIZE").unwrap_or("dev".to_string());
     let ln_esp_board = match board.as_str() {
-        "mini" => "mini",
-        "zero" => "zero",
-        _ => "full",
+        "mini" => "zero",
+        "full" => "dev",
+        _ => board.as_str(),
     };
+    println!(
+        "cargo:warning=Board: {} (SWINDLE_SIZE={}, LN_BOARD_SIZE_{})",
+        ln_esp_board,
+        board,
+        ln_esp_board.to_uppercase()
+    );
 
     // Reset polarity: "inverted" drives NRST through a MOSFET (active-high),
     // "straight" uses the default open-drain (active-low) reset pin. Forwarded

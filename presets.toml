@@ -1,0 +1,40 @@
+# Build profiles ("presets") for the Swindle ESP32 firmware.
+#
+# Each preset selects:
+#   - mcu:   the target chip  (esp32s3 / esp32c3 / esp32c6) — drives the Rust
+#            target triple and, via esp-idf-sys, the chip Rust cfgs.
+#   - board: the board type, which selects the SHARED pinout header
+#            modules/swindle_wrapper/include/lnBMP_pinout_external_<board>.h
+#            (SWDIO/SWDCLK/RESET via _mapping[], WS2812B via LN_ESP_2812_PIN,
+#            ADC, USB/serial instances, EXTRA_SETUP()).
+#
+# A board is independent of the MCU: any MCU can reuse any board header as
+# long as the pins exist on that chip.
+#
+# Preset name convention: <mcu>_<board>.
+# Reset polarity is a build-time flag (./build.sh --inverted / SWINDLE_NRST)
+# and is never part of a preset.
+
+[preset.esp32s3_dev]
+mcu   = "esp32s3"
+board = "dev"
+
+[preset.esp32s3_zero]
+mcu   = "esp32s3"
+board = "zero"
+
+[preset.esp32c3_dev]
+mcu   = "esp32c3"
+board = "dev"
+
+[preset.esp32c3_zero]
+mcu   = "esp32c3"
+board = "zero"
+
+[preset.esp32c6_zero]
+mcu   = "esp32c6"
+board = "zero"
+
+[preset.esp32c6_alternatezero]
+mcu   = "esp32c6"
+board = "alternatezero"
