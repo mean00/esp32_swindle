@@ -38,14 +38,14 @@ The firmware supports dynamic pinout selection depending on your target MCU and 
 
 ### ESP32-C6 AlternateZero (board `alternatezero`)
 
-| Function       | GPIO     | Notes                                 |
-| :------------- | :------- | :------------------------------------ |
-| **SWDIO**      | `GPIO4`  | Target SWD I/O                        |
-| **SWDCLK**     | `GPIO5`  | Target SWD Clock                      |
-| **RESET**      | `GPIO6`  | Target Reset                          |
-| **ADC**        | `GPIO7`  | Reads target voltage                  |
-| **WS2812**     | `GPIO8`  | Status LED                            |
-| **PROV RESET** | `GPIO1`  | Ground to reset provisioning          |
+| Function       | GPIO    | Notes                        |
+| :------------- | :------ | :--------------------------- |
+| **SWDIO**      | `GPIO4` | Target SWD I/O               |
+| **SWDCLK**     | `GPIO5` | Target SWD Clock             |
+| **RESET**      | `GPIO6` | Target Reset                 |
+| **ADC**        | `GPIO7` | Reads target voltage         |
+| **WS2812**     | `GPIO8` | Status LED                   |
+| **PROV RESET** | `GPIO1` | Ground to reset provisioning |
 
 ---
 
@@ -76,23 +76,14 @@ Presets are defined in `presets.toml` (name convention: `<mcu>_<board>`).
 ./build.sh --list
 ```
 
-| Preset                   | MCU      | Board (pinout header)                                          |
-| :----------------------- | :------- | :------------------------------------------------------------- |
-| `esp32s3_dev`            | esp32s3  | `dev` → `lnBMP_pinout_external_dev.h`                          |
-| `esp32s3_zero`           | esp32s3  | `zero` → `lnBMP_pinout_external_zero.h`                        |
-| `esp32c3_dev`            | esp32c3  | `dev` (shared header)                                          |
-| `esp32c3_zero`           | esp32c3  | `zero` (shared header)                                         |
-| `esp32c6_zero`           | esp32c6  | `zero` (shared header)                                         |
-| `esp32c6_alternatezero`  | esp32c6  | `alternatezero` → `lnBMP_pinout_external_alternatezero.h`      |
-
-The legacy positional front-end `./build_all.sh [MCU] [SIZE] [RESET]` still works
-and is mapped onto presets (the old `full`/`mini` size names are aliases of
-`dev`/`zero`):
-
-```bash
-./build_all.sh esp32s3 zero
-./build_all.sh esp32c3 zero inverted
-```
+| Preset                  | MCU     | Board (pinout header)                                     |
+| :---------------------- | :------ | :-------------------------------------------------------- |
+| `esp32s3_dev`           | esp32s3 | `dev` → `lnBMP_pinout_external_dev.h`                     |
+| `esp32s3_zero`          | esp32s3 | `zero` → `lnBMP_pinout_external_zero.h`                   |
+| `esp32c3_dev`           | esp32c3 | `dev` (shared header)                                     |
+| `esp32c3_zero`          | esp32c3 | `zero` (shared header)                                    |
+| `esp32c6_zero`          | esp32c6 | `zero` (shared header)                                    |
+| `esp32c6_alternatezero` | esp32c6 | `alternatezero` → `lnBMP_pinout_external_alternatezero.h` |
 
 The compiled binary will be placed in the `target/` directory as `swindle_<mcu>_<board>`
 (or `swindle_<mcu>_<board>_inverted` when the `inverted` reset mode is selected).
