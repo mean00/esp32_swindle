@@ -70,33 +70,72 @@ impl LocalContext {
         self.tx_index = 0;
     }
     //
-    fn push(&mut self, size: u32, data: *const u8) {
-        if self.tx_index + size >= TX_BUFFER_SIZE as u32 {
-            self.flush();
-        }
+    fn push(&mut self, size: u32, data: *const u8) -> bool {
+        // Case 1: The incoming data is larger than the buffer capacity.
+        // Flush any existing buffered data first, then send the new data directly.
         if size >= TX_BUFFER_SIZE as u32 {
-            self.socket_write(size, data);
-        } else {
-            unsafe {
-                let dest_ptr = self.tx_buffer.as_mut_ptr().add(self.tx_index as usize);
-                std::ptr::copy_nonoverlapping(data, dest_ptr, size as usize);
+            if !self.flush() {
+                return false;
             }
-            self.tx_index += size;
+            return self.socket_write(size, data);
         }
+
+        // Case 2: The data fits in the buffer overall, but there isn't enough room right now.
+        // Flush the buffer to make space.
+        if self.tx_index + size >= TX_BUFFER_SIZE as u32 {
+            if !self.flush() {
+                return false;
+            }
+        }
+
+        // Case 3: The data is now guaranteed to safely fit in the buffer.
+        unsafe {
+            let dest_ptr = self.tx_buffer.as_mut_ptr().add(self.tx_index as usize);
+            std::ptr::copy_nonoverlapping(data, dest_ptr, size as usize);
+        }
+        self.tx_index += size;
+        
+        true
     }
     //
-    fn socket_write(&mut self, size: u32, data: *const u8) {
+    fn socket_write(&mut self, mut size: u32, mut data: *const u8) -> bool {
         if let Some(ref mut writer) = self.fd {
-            unsafe {
-                libc::send(*writer, data as *const libc::c_void, size as usize, 0);
+            while size > 0 {
+                let sent = unsafe {
+                    libc::send(*writer, data as *const libc::c_void, size as usize, 0)
+                };
+                if sent < 0 {
+                    let err = std::io::Error::last_os_error();
+                    if err.kind() == std::io::ErrorKind::Interrupted {
+                        continue; // EINTR, safe to retry
+                    }
+                    // Fatal network error (e.g., EPIPE, ECONNRESET). 
+                    // Invalidate socket to prevent further pointless write attempts.
+                    self.fd = None;
+                    return false;
+                } else if sent == 0 {
+                    // Connection cleanly closed by peer
+                    self.fd = None;
+                    return false;
+                }
+                
+                size -= sent as u32;
+                data = unsafe { data.add(sent as usize) };
             }
+            true
+        } else {
+            false // Socket was already dead/invalidated
         }
     }
     //
-    fn flush(&mut self) {
+    fn flush(&mut self) -> bool {
         if self.tx_index != 0 {
-            self.socket_write(self.tx_index, self.tx_buffer.as_ptr());
+            let success = self.socket_write(self.tx_index, self.tx_buffer.as_ptr());
+            // Always reset the index even on failure, so we don't infinitely retry failed data
             self.tx_index = 0;
+            success
+        } else {
+            true
         }
     }
 }
@@ -114,18 +153,24 @@ lazy_static! {
  */
 #[unsafe(no_mangle)]
 pub extern "C" fn rngdb_output_flush_c() {
-    WRITE_HALF.with(|ctx| {
-        ctx.flush();
+    let _success = WRITE_HALF.with(|ctx| {
+        ctx.flush()
     });
+    // NOTE: Failure cannot be propagated further because this C-FFI API is 
+    // expected by the swindle backend to return `void`. 
+    // (If `_success` is false, `self.fd` is internally set to None, safely ignoring future writes).
 }
 /*
  *
  */
 #[unsafe(no_mangle)]
 pub extern "C" fn rngdb_send_data_c(sz: u32, ptr: *const u8) {
-    WRITE_HALF.with(|ctx| {
-        ctx.push(sz, ptr);
+    let _success = WRITE_HALF.with(|ctx| {
+        ctx.push(sz, ptr)
     });
+    // NOTE: Failure cannot be propagated further because this C-FFI API is 
+    // expected by the swindle backend to return `void`.
+    // (If `_success` is false, `self.fd` is internally set to None, safely ignoring future writes).
 }
 /*
  *
